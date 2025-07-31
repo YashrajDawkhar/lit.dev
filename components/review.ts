@@ -16,119 +16,168 @@ export class ReviewComponent extends LitElement {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       max-width: 900px;
       margin: 0 auto;
-      padding: 40px 20px;
-      background: #f5f5f5;
+      padding: 50px 30px;
+      background: linear-gradient(135deg, #f0f3f8, #ffffff);
       min-height: 100vh;
+      color: #444;
     }
 
     .reviews-container {
       background: white;
-      border-radius: 8px;
-      padding: 40px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-      border: 1px solid #e0e0e0;
+      border-radius: 12px;
+      padding: 40px 50px;
+      box-shadow:
+        0 4px 8px rgba(0, 0, 0, 0.05),
+        0 2px 12px rgba(0, 0, 0, 0.07);
+      border: none;
     }
 
     .reviews-title {
-      font-size: 2.5rem;
-      font-weight: 600;
+      font-size: 2.75rem;
+      font-weight: 700;
       text-align: center;
-      margin-bottom: 40px;
-      color: #333;
+      margin-bottom: 50px;
+      color: #222;
+      letter-spacing: 0.04em;
+    }
+
+    .reviews-summary {
+      background: #fafafa;
+      border-radius: 10px;
+      padding: 30px 40px;
+      color: #555;
+      border: 1px solid #ddd;
+      margin-bottom: 48px;
+      box-shadow: inset 0 0 8px #ececec;
+    }
+
+    .average-rating {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #2a2a2a;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .total-reviews {
+      font-size: 1rem;
+      color: #666;
+      font-weight: 500;
     }
 
     .review-item {
-      background: #fafafa;
-      border-radius: 8px;
-      margin-bottom: 20px;
-      padding: 24px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-      transition: box-shadow 0.2s ease;
-      border: 1px solid #e8e8e8;
+      background: #fff;
+      border-radius: 12px;
+      margin-bottom: 28px;
+      padding: 28px 36px;
+      box-shadow:
+        0 3px 8px rgba(0, 0, 0, 0.06);
+      border: none;
+      transition: box-shadow 0.3s ease, transform 0.3s ease;
+      cursor: default;
     }
 
     .review-item:hover {
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+      box-shadow:
+        0 8px 24px rgba(0, 0, 0, 0.12);
+      transform: translateY(-4px);
     }
 
     .review-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 16px;
+      margin-bottom: 18px;
     }
 
     .reviewer-name {
-      font-weight: 600;
-      color: #333;
-      font-size: 1.2rem;
+      font-weight: 700;
+      color: #2c2c2c;
+      font-size: 1.3rem;
     }
 
     .rating {
-      font-size: 1.2rem;
-      color: #ffa500;
+      font-size: 1.3rem;
+      color: #ffb400;
+      display: flex;
+      gap: 2px;
     }
 
     .review-text {
-      line-height: 1.6;
-      margin-bottom: 16px;
-      color: #555;
-      font-size: 1rem;
+      line-height: 1.7;
+      margin-bottom: 20px;
+      color: #565656;
+      font-size: 1.05rem;
+      letter-spacing: 0.01em;
     }
 
     .review-date {
       font-size: 0.9rem;
-      color: #777;
+      color: #999;
       text-align: right;
       font-weight: 400;
+      font-style: italic;
     }
 
-    .reviews-summary {
-      text-align: center;
-      margin-bottom: 32px;
-      padding: 24px;
-      background: #f8f8f8;
-      border-radius: 8px;
-      color: #333;
-      border: 1px solid #e0e0e0;
-    }
-
-    .average-rating {
-      font-size: 1.8rem;
-      font-weight: 600;
-      margin-bottom: 12px;
-      color: #333;
-    }
-
-    .total-reviews {
-      font-size: 1rem;
-      color: #666;
-      font-weight: 400;
+    .star {
+      font-size: 1.3rem;
+      text-shadow: 0 0 2px #d99e00;
+      transition: color 0.3s ease;
     }
 
     .star-gold {
-      color: #ffa500;
+      color: #ffb400;
     }
-
     .star-empty {
-      color: #ddd;
+      color: #ececec;
+    }
+   
+    /* Half star using a Unicode trick: a half filled star is not standard,
+       so we use an SVG or CSS trick - here we use a span with a gradient mask */
+    .star-half {
+      position: relative;
+      color: #ffb400;
+    }
+    .star-half::before {
+      content: "★";
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 50%;
+      overflow: hidden;
+      color: #ffb400;
+      z-index: 1;
+      -webkit-text-stroke: 0;
+    }
+    .star-half::after {
+      content: "☆";
+      color: #ececec;
     }
 
     @media (max-width: 768px) {
       :host {
-        padding: 20px 10px;
+        padding: 30px 16px;
       }
-      
+
       .reviews-container {
-        padding: 24px;
+        padding: 30px;
       }
-      
+
       .reviews-title {
         font-size: 2rem;
+        margin-bottom: 38px;
       }
-      
+
       .review-item {
-        padding: 20px;
+        padding: 24px 28px;
+        margin-bottom: 24px;
+      }
+
+      .average-rating {
+        font-size: 1.6rem;
       }
     }
   `;
@@ -138,44 +187,63 @@ export class ReviewComponent extends LitElement {
     {
       reviewerName: "Yash",
       rating: 5,
-      reviewText: "This is an amazing product! The quality exceeded my expectations and the customer service was outstanding. Highly recommend!",
-      reviewDate: "December 15, 2024"
+      reviewText:
+        "This is an amazing product! The quality exceeded my expectations and the customer service was outstanding. Highly recommend!",
+      reviewDate: "December 15, 2024",
     },
     {
       reviewerName: "Sarah Johnson",
       rating: 4,
-      reviewText: "Really good product overall. Easy to use and well-designed. Only minor issue was the delivery took a bit longer than expected.",
-      reviewDate: "December 12, 2024"
+      reviewText:
+        "Really good product overall. Easy to use and well-designed. Only minor issue was the delivery took a bit longer than expected.",
+      reviewDate: "December 12, 2024",
     },
     {
       reviewerName: "Mike Chen",
       rating: 5,
-      reviewText: "Fantastic! This has made my workflow so much more efficient. The features are exactly what I needed.",
-      reviewDate: "December 10, 2024"
+      reviewText:
+        "Fantastic! This has made my workflow so much more efficient. The features are exactly what I needed.",
+      reviewDate: "December 10, 2024",
     },
     {
       reviewerName: "Emily Davis",
       rating: 4.5,
-      reviewText: "Great value for money. The interface is intuitive and the performance is solid. Would definitely buy again.",
-      reviewDate: "December 8, 2024"
+      reviewText:
+        "Great value for money. The interface is intuitive and the performance is solid. Would definitely buy again.",
+      reviewDate: "December 8, 2024",
     },
     {
       reviewerName: "Alex Rodriguez",
       rating: 3,
-      reviewText: "It's okay, does what it's supposed to do. Could use some improvements in the user interface, but overall functional.",
-      reviewDate: "December 5, 2024"
-    }
+      reviewText:
+        "It's okay, does what it's supposed to do. Could use some improvements in the user interface, but overall functional.",
+      reviewDate: "December 5, 2024",
+    },
   ];
 
-  private renderStars(rating: number): any {
+  // Render stars, including support for half stars using a CSS overlay trick
+  private renderStars(rating: number) {
     const fullStars = Math.floor(rating);
-    const hasHalfStar = rating % 1 !== 0;
-    const emptyStars = 5 - Math.ceil(rating);
+    const halfStar = rating - fullStars >= 0.5;
+    const emptyStars = 5 - fullStars - (halfStar ? 1 : 0);
 
     return html`
-      ${Array(fullStars).fill(0).map(() => html`<span class="star-gold">★</span>`)}
-      ${hasHalfStar ? html`<span class="star-gold">☆</span>` : ''}
-      ${Array(emptyStars).fill(0).map(() => html`<span class="star-empty">☆</span>`)}
+      ${Array(fullStars)
+        .fill(0)
+        .map(
+          () =>
+            html`<span class="star star-gold" aria-hidden="true">★</span>`
+        )}
+      ${halfStar
+        ? html`<span class="star star-half" aria-hidden="true">★</span>`
+        : ""}
+      ${Array(emptyStars)
+        .fill(0)
+        .map(
+          () =>
+            html`<span class="star star-empty" aria-hidden="true">☆</span>`
+        )}
+      <span class="visually-hidden">Rating: ${rating} out of 5 stars</span>
     `;
   }
 
@@ -187,31 +255,35 @@ export class ReviewComponent extends LitElement {
 
   render() {
     const averageRating = this.getAverageRating();
-    
+
     return html`
-      <div class="reviews-container">
+      <section class="reviews-container" role="region" aria-label="Customer Reviews">
         <h2 class="reviews-title">Customer Reviews</h2>
-        
-        <div class="reviews-summary">
+
+        <div class="reviews-summary" aria-live="polite">
           <div class="average-rating">
-            ${this.renderStars(averageRating)} ${averageRating}/5
+            ${this.renderStars(averageRating)} <span>${averageRating}/5</span>
           </div>
           <div class="total-reviews">
-            Based on ${this.reviews.length} review${this.reviews.length !== 1 ? 's' : ''}
+            Based on ${this.reviews.length} review${this.reviews.length !== 1 ? "s" : ""}
           </div>
         </div>
 
-        ${this.reviews.map(review => html`
-          <div class="review-item">
-            <div class="review-header">
-              <span class="reviewer-name">${review.reviewerName}</span>
-              <span class="rating">${this.renderStars(review.rating)}</span>
-            </div>
-            <div class="review-text">${review.reviewText}</div>
-            <div class="review-date">Posted on ${review.reviewDate}</div>
-          </div>
-        `)}
-      </div>
+        ${this.reviews.map(
+          (review) => html`
+            <article class="review-item" tabindex="0" aria-label="Review by ${review.reviewerName}">
+              <div class="review-header">
+                <span class="reviewer-name">${review.reviewerName}</span>
+                <span class="rating" aria-label="Rating: ${review.rating} out of 5 stars">
+                  ${this.renderStars(review.rating)}
+                </span>
+              </div>
+              <p class="review-text">${review.reviewText}</p>
+              <div class="review-date">Posted on ${review.reviewDate}</div>
+            </article>
+          `
+        )}
+      </section>
     `;
   }
 }
