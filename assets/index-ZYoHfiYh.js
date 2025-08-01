@@ -1632,7 +1632,7 @@ What type of entertainment are you interested in?`,"Let's talk entertainment! ğŸ
 
       .chat-window {
         width: 100vw;
-        height: 100vh;
+        height: 100dvh;
         bottom: 0;
         right: 0;
         transform: translateY(100%);
