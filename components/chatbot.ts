@@ -410,7 +410,7 @@ export class ChatbotComponent extends LitElement {
 
       .chat-window {
         width: 100vw;
-        height: 100vh;
+        height: 100dvh;
         bottom: 0;
         right: 0;
         transform: translateY(100%);

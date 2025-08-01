@@ -9,7 +9,7 @@
     "build": "vite build",
     "dev": "vite",
     "type-check": "tsc --noEmit",
-    "deploy": "gh-pages -d dist"
+    "deploy": "npm run build && gh-pages -d dist"
   },
   "keywords": [],
   "author": "",
