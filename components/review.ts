@@ -1,6 +1,6 @@
-import { LitElement, html } from "lit";
+import { html } from "lit";
 import { customElement, property } from "lit/decorators.js";
-import { TW } from "../shared/tailwindMixin.js";
+import { TailwindElement } from "../shared/tailwindMixin.js";
 
 interface Review {
   reviewerName: string;
@@ -10,7 +10,7 @@ interface Review {
 }
 
 @customElement("review-component")
-export class ReviewComponent extends TW(LitElement) {
+export class ReviewComponent extends TailwindElement {
   @property({ type: Array })
   reviews: Review[] = [
     {
