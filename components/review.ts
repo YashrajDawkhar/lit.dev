@@ -1,5 +1,6 @@
-import { LitElement, html, css } from "lit";
+import { LitElement, html } from "lit";
 import { customElement, property } from "lit/decorators.js";
+import { TW } from "../shared/tailwindMixin.js";
 
 interface Review {
   reviewerName: string;
@@ -9,179 +10,7 @@ interface Review {
 }
 
 @customElement("review-component")
-export class ReviewComponent extends LitElement {
-  static styles = css`
-    :host {
-      display: block;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      max-width: 900px;
-      margin: 0 auto;
-      padding: 50px 30px;
-      background: linear-gradient(135deg, #f0f3f8, #ffffff);
-      min-height: 100vh;
-      color: #444;
-    }
-
-    .reviews-container {
-      background: white;
-      border-radius: 12px;
-      padding: 40px 50px;
-      box-shadow:
-        0 4px 8px rgba(0, 0, 0, 0.05),
-        0 2px 12px rgba(0, 0, 0, 0.07);
-      border: none;
-    }
-
-    .reviews-title {
-      font-size: 2.75rem;
-      font-weight: 700;
-      text-align: center;
-      margin-bottom: 50px;
-      color: #222;
-      letter-spacing: 0.04em;
-    }
-
-    .reviews-summary {
-      background: #fafafa;
-      border-radius: 10px;
-      padding: 30px 40px;
-      color: #555;
-      border: 1px solid #ddd;
-      margin-bottom: 48px;
-      box-shadow: inset 0 0 8px #ececec;
-    }
-
-    .average-rating {
-      font-size: 2rem;
-      font-weight: 700;
-      color: #2a2a2a;
-      margin-bottom: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-    }
-
-    .total-reviews {
-      font-size: 1rem;
-      color: #666;
-      font-weight: 500;
-    }
-
-    .review-item {
-      background: #fff;
-      border-radius: 12px;
-      margin-bottom: 28px;
-      padding: 28px 36px;
-      box-shadow:
-        0 3px 8px rgba(0, 0, 0, 0.06);
-      border: none;
-      transition: box-shadow 0.3s ease, transform 0.3s ease;
-      cursor: default;
-    }
-
-    .review-item:hover {
-      box-shadow:
-        0 8px 24px rgba(0, 0, 0, 0.12);
-      transform: translateY(-4px);
-    }
-
-    .review-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 18px;
-    }
-
-    .reviewer-name {
-      font-weight: 700;
-      color: #2c2c2c;
-      font-size: 1.3rem;
-    }
-
-    .rating {
-      font-size: 1.3rem;
-      color: #ffb400;
-      display: flex;
-      gap: 2px;
-    }
-
-    .review-text {
-      line-height: 1.7;
-      margin-bottom: 20px;
-      color: #565656;
-      font-size: 1.05rem;
-      letter-spacing: 0.01em;
-    }
-
-    .review-date {
-      font-size: 0.9rem;
-      color: #999;
-      text-align: right;
-      font-weight: 400;
-      font-style: italic;
-    }
-
-    .star {
-      font-size: 1.3rem;
-      text-shadow: 0 0 2px #d99e00;
-      transition: color 0.3s ease;
-    }
-
-    .star-gold {
-      color: #ffb400;
-    }
-    .star-empty {
-      color: #ececec;
-    }
-   
-    /* Half star using a Unicode trick: a half filled star is not standard,
-       so we use an SVG or CSS trick - here we use a span with a gradient mask */
-    .star-half {
-      position: relative;
-      color: #ffb400;
-    }
-    .star-half::before {
-      content: "★";
-      position: absolute;
-      left: 0;
-      top: 0;
-      width: 50%;
-      overflow: hidden;
-      color: #ffb400;
-      z-index: 1;
-      -webkit-text-stroke: 0;
-    }
-    .star-half::after {
-      content: "☆";
-      color: #ececec;
-    }
-
-    @media (max-width: 768px) {
-      :host {
-        padding: 30px 16px;
-      }
-
-      .reviews-container {
-        padding: 30px;
-      }
-
-      .reviews-title {
-        font-size: 2rem;
-        margin-bottom: 38px;
-      }
-
-      .review-item {
-        padding: 24px 28px;
-        margin-bottom: 24px;
-      }
-
-      .average-rating {
-        font-size: 1.6rem;
-      }
-    }
-  `;
-
+export class ReviewComponent extends TW(LitElement) {
   @property({ type: Array })
   reviews: Review[] = [
     {
@@ -232,18 +61,21 @@ export class ReviewComponent extends LitElement {
         .fill(0)
         .map(
           () =>
-            html`<span class="star star-gold" aria-hidden="true">★</span>`
+            html`<span class="text-yellow-400 text-xl" aria-hidden="true">★</span>`
         )}
       ${halfStar
-        ? html`<span class="star star-half" aria-hidden="true">★</span>`
+        ? html`<span class="relative text-yellow-400 text-xl" aria-hidden="true">
+            <span class="absolute left-0 top-0 w-1/2 overflow-hidden">★</span>
+            <span class="text-gray-300">☆</span>
+          </span>`
         : ""}
       ${Array(emptyStars)
         .fill(0)
         .map(
           () =>
-            html`<span class="star star-empty" aria-hidden="true">☆</span>`
+            html`<span class="text-gray-300 text-xl" aria-hidden="true">☆</span>`
         )}
-      <span class="visually-hidden">Rating: ${rating} out of 5 stars</span>
+      <span class="sr-only">Rating: ${rating} out of 5 stars</span>
     `;
   }
 
@@ -257,33 +89,35 @@ export class ReviewComponent extends LitElement {
     const averageRating = this.getAverageRating();
 
     return html`
-      <section class="reviews-container" role="region" aria-label="Customer Reviews">
-        <h2 class="reviews-title">Customer Reviews</h2>
+      <div class="block font-sans max-w-4xl mx-auto p-12 md:p-8 bg-gradient-to-br from-slate-50 to-white min-h-screen text-gray-700">
+        <section class="bg-white rounded-xl p-12 md:p-8 shadow-lg border-0" role="region" aria-label="Customer Reviews">
+          <h2 class="text-5xl md:text-3xl font-bold text-center mb-12 md:mb-10 text-gray-900 tracking-wide">Customer Reviews</h2>
 
-        <div class="reviews-summary" aria-live="polite">
-          <div class="average-rating">
-            ${this.renderStars(averageRating)} <span>${averageRating}/5</span>
+          <div class="bg-gray-50 rounded-lg p-8 md:p-6 text-gray-600 border border-gray-200 mb-12 md:mb-10 shadow-inner" aria-live="polite">
+            <div class="text-3xl md:text-2xl font-bold text-gray-800 mb-2 flex items-center justify-center gap-2">
+              ${this.renderStars(averageRating)} <span>${averageRating}/5</span>
+            </div>
+            <div class="text-base text-gray-600 font-medium text-center">
+              Based on ${this.reviews.length} review${this.reviews.length !== 1 ? "s" : ""}
+            </div>
           </div>
-          <div class="total-reviews">
-            Based on ${this.reviews.length} review${this.reviews.length !== 1 ? "s" : ""}
-          </div>
-        </div>
 
-        ${this.reviews.map(
-          (review) => html`
-            <article class="review-item" tabindex="0" aria-label="Review by ${review.reviewerName}">
-              <div class="review-header">
-                <span class="reviewer-name">${review.reviewerName}</span>
-                <span class="rating" aria-label="Rating: ${review.rating} out of 5 stars">
-                  ${this.renderStars(review.rating)}
-                </span>
-              </div>
-              <p class="review-text">${review.reviewText}</p>
-              <div class="review-date">Posted on ${review.reviewDate}</div>
-            </article>
-          `
-        )}
-      </section>
+          ${this.reviews.map(
+            (review) => html`
+              <article class="bg-white rounded-xl mb-7 md:mb-6 p-9 md:p-7 shadow-md border-0 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 cursor-default" tabindex="0" aria-label="Review by ${review.reviewerName}">
+                <div class="flex justify-between items-center mb-5">
+                  <span class="font-bold text-gray-800 text-xl">${review.reviewerName}</span>
+                  <span class="text-xl text-yellow-400 flex gap-1" aria-label="Rating: ${review.rating} out of 5 stars">
+                    ${this.renderStars(review.rating)}
+                  </span>
+                </div>
+                <p class="leading-relaxed mb-5 text-gray-600 text-lg tracking-wide">${review.reviewText}</p>
+                <div class="text-sm text-gray-500 text-right font-normal italic">Posted on ${review.reviewDate}</div>
+              </article>
+            `
+          )}
+        </section>
+      </div>
     `;
   }
 }
