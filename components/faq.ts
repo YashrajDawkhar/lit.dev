@@ -1,99 +1,9 @@
-import { LitElement, html, css } from "lit";
+import { html } from "lit";
 import { customElement, property } from "lit/decorators.js";
+import { TailwindElement } from "../shared/tailwindMixin.js";
 
 @customElement("faq-component")
-export class FAQComponent extends LitElement {
-  static styles = css`
-    :host {
-      display: block;
-      font-family: Arial, sans-serif;
-      max-width: 800px;
-      margin: 0 auto;
-      padding: 20px;
-    }
-
-    .faq-container {
-      background: #f8f9fa;
-      border-radius: 12px;
-      padding: 24px;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
-
-    .faq-title {
-      font-size: 2rem;
-      font-weight: bold;
-      text-align: center;
-      margin-bottom: 32px;
-      color: #2c3e50;
-    }
-
-    .faq-item {
-      background: white;
-      border-radius: 8px;
-      margin-bottom: 16px;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-      overflow: hidden;
-      transition: all 0.3s ease;
-    }
-
-    .faq-item:hover {
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    }
-
-    .faq-question {
-      padding: 20px;
-      cursor: pointer;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: white;
-      border: none;
-      width: 100%;
-      text-align: left;
-      font-size: 1.1rem;
-      font-weight: 600;
-      color: #2c3e50;
-      transition: background-color 0.3s ease;
-    }
-
-    .faq-question:hover {
-      background-color: #f8f9fa;
-    }
-
-    .faq-question.active {
-      background-color: #e3f2fd;
-      color: #1976d2;
-    }
-
-    .faq-icon {
-      font-size: 1.2rem;
-      transition: transform 0.3s ease;
-      color: #1976d2;
-    }
-
-    .faq-icon.rotated {
-      transform: rotate(180deg);
-    }
-
-    .faq-answer {
-      max-height: 0;
-      overflow: hidden;
-      transition: max-height 0.3s ease, padding 0.3s ease;
-      background: #fafafa;
-    }
-
-    .faq-answer.open {
-      max-height: 200px;
-      padding: 20px;
-    }
-
-    .faq-answer-text {
-      color: #555;
-      line-height: 1.6;
-      font-size: 1rem;
-    }
-  `;
-
+export class FAQComponent extends TailwindElement {
   @property({ type: Object })
   private openItems: Set<number> = new Set();
 
@@ -136,31 +46,33 @@ export class FAQComponent extends LitElement {
 
   render() {
     return html`
-      <div class="faq-container">
-        <h2 class="faq-title">Frequently Asked Questions</h2>
-        ${this.faqData.map(
-          (item, index) => html`
-            <div class="faq-item">
-              <button
-                class="faq-question ${this.openItems.has(index)
-                  ? "active"
-                  : ""}"
-                @click=${() => this.toggleItem(index)}
-              >
-                <span>${item.question}</span>
-                <span
-                  class="faq-icon ${this.openItems.has(index) ? "rotated" : ""}"
-                  >▼</span
+      <div class="block font-sans max-w-3xl mx-auto p-5">
+        <div class="bg-gray-50 rounded-xl p-6 shadow-md">
+          <h2 class="text-3xl font-bold text-center mb-8 text-gray-800">Frequently Asked Questions</h2>
+          ${this.faqData.map(
+            (item, index) => html`
+              <div class="bg-white rounded-lg mb-4 shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md">
+                <button
+                  class="p-5 cursor-pointer flex justify-between items-center bg-white border-none w-full text-left text-lg font-semibold text-gray-800 transition-colors duration-300 hover:bg-gray-50 ${this.openItems.has(index)
+                    ? "bg-blue-50 text-blue-700"
+                    : ""}"
+                  @click=${() => this.toggleItem(index)}
                 >
-              </button>
-              <div
-                class="faq-answer ${this.openItems.has(index) ? "open" : ""}"
-              >
-                <div class="faq-answer-text">${item.answer}</div>
+                  <span>${item.question}</span>
+                  <span
+                    class="text-xl transition-transform duration-300 text-blue-700 ${this.openItems.has(index) ? "rotate-180" : ""}"
+                    >▼</span
+                  >
+                </button>
+                <div
+                  class="max-h-0 overflow-hidden transition-all duration-300 bg-gray-50 ${this.openItems.has(index) ? "max-h-48 p-5" : ""}"
+                >
+                  <div class="text-gray-600 leading-relaxed text-base">${item.answer}</div>
+                </div>
               </div>
-            </div>
-          `
-        )}
+            `
+          )}
+        </div>
       </div>
     `;
   }

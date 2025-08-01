@@ -1,124 +1,10 @@
-import { LitElement, html, css } from "lit";
+import { html } from "lit";
 import { customElement, property } from "lit/decorators.js";
+import { TailwindElement } from "../shared/tailwindMixin.js";
 
 
 @customElement("gallery-component")
-export class GalleryComponent extends LitElement {
-  static styles = css`
-    :host {
-      display: block;
-      font-family: Arial, sans-serif;
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 20px;
-    }
-
-    .gallery-container {
-      background: #f8f9fa;
-      border-radius: 12px;
-      padding: 24px;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
-
-    .gallery-title {
-      font-size: 2rem;
-      font-weight: bold;
-      text-align: center;
-      margin-bottom: 32px;
-      color: #2c3e50;
-    }
-
-    .gallery-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 20px;
-      margin-bottom: 20px;
-    }
-
-    .gallery-item {
-      background: white;
-      border-radius: 8px;
-      overflow: hidden;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-      cursor: pointer;
-    }
-
-    .gallery-item:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
-    }
-
-    .gallery-image {
-      width: 100%;
-      height: 200px;
-      object-fit: cover;
-      display: block;
-    }
-
-    .gallery-caption {
-      padding: 16px;
-    }
-
-    .gallery-caption h3 {
-      margin: 0 0 8px 0;
-      font-size: 1.2rem;
-      color: #2c3e50;
-    }
-
-    .gallery-caption p {
-      margin: 0;
-      color: #666;
-      font-size: 0.9rem;
-      line-height: 1.4;
-    }
-
-    .modal {
-      display: none;
-      position: fixed;
-      z-index: 1000;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0, 0, 0, 0.8);
-    }
-
-    .modal.open {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .modal-content {
-      max-width: 90%;
-      max-height: 90%;
-      position: relative;
-    }
-
-    .modal-image {
-      width: 100%;
-      height: auto;
-      border-radius: 8px;
-    }
-
-    .modal-close {
-      position: absolute;
-      top: -40px;
-      right: 0;
-      color: white;
-      font-size: 2rem;
-      cursor: pointer;
-      background: none;
-      border: none;
-      padding: 0;
-    }
-
-    .modal-close:hover {
-      opacity: 0.7;
-    }
-  `;
-
+export class GalleryComponent extends TailwindElement {
   @property({ type: Array })
   images = [
     {
@@ -166,27 +52,29 @@ export class GalleryComponent extends LitElement {
 
   render() {
     return html`
-      <div class="gallery-container">
-        <h2 class="gallery-title">Photo Gallery</h2>
-        <div class="gallery-grid">
-          ${this.images.map((image, index) => html`
-            <div class="gallery-item" @click=${() => this.openModal(index)}>
-              <img class="gallery-image" src="${image.src}" alt="${image.title}" />
-              <div class="gallery-caption">
-                <h3>${image.title}</h3>
-                <p>${image.description}</p>
+      <div class="block font-sans max-w-6xl mx-auto p-5">
+        <div class="bg-gray-50 rounded-xl p-6 shadow-lg">
+          <h2 class="text-3xl font-bold text-center mb-8 text-gray-800">Photo Gallery</h2>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-5">
+            ${this.images.map((image, index) => html`
+              <div class="bg-white rounded-lg overflow-hidden shadow-md transition-all duration-300 ease-in-out cursor-pointer hover:-translate-y-1 hover:shadow-xl" @click=${() => this.openModal(index)}>
+                <img class="w-full h-48 object-cover block" src="${image.src}" alt="${image.title}" />
+                <div class="p-4">
+                  <h3 class="m-0 mb-2 text-lg text-gray-800 font-semibold">${image.title}</h3>
+                  <p class="m-0 text-gray-600 text-sm leading-relaxed">${image.description}</p>
+                </div>
               </div>
-            </div>
-          `)}
+            `)}
+          </div>
         </div>
       </div>
 
-      <div class="modal ${this.selectedImageIndex >= 0 ? 'open' : ''}" @click=${this.closeModal}>
+      <div class="fixed inset-0 z-50 bg-black bg-opacity-80 ${this.selectedImageIndex >= 0 ? 'flex' : 'hidden'} items-center justify-center" @click=${this.closeModal}>
         ${this.selectedImageIndex >= 0 ? html`
-          <div class="modal-content" @click=${(e: Event) => e.stopPropagation()}>
-            <button class="modal-close" @click=${this.closeModal}>&times;</button>
+          <div class="max-w-[90%] max-h-[90%] relative" @click=${(e: Event) => e.stopPropagation()}>
+            <button class="absolute -top-10 right-0 text-white text-3xl cursor-pointer bg-transparent border-0 p-0 hover:opacity-70" @click=${this.closeModal}>&times;</button>
             <img 
-              class="modal-image" 
+              class="w-full h-auto rounded-lg" 
               src="${this.images[this.selectedImageIndex].src}" 
               alt="${this.images[this.selectedImageIndex].title}"
             />

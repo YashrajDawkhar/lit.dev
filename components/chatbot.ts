@@ -1,5 +1,6 @@
-import { LitElement, html, css } from "lit";
+import { html, css } from "lit";
 import { customElement, state } from "lit/decorators.js";
+import { TailwindElement } from "../shared/tailwindMixin.js";
 
 interface Message {
     id: string;
@@ -9,471 +10,7 @@ interface Message {
 }
 
 @customElement("chatbot-component")
-export class ChatbotComponent extends LitElement {
-    static styles = css`
-    :host {
-      display: block;
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    }
-
-    .chatbot-container {
-      position: fixed;
-      bottom: 24px;
-      right: 24px;
-      z-index: 1000;
-    }
-
-    .chat-toggle {
-      width: 72px;
-      height: 72px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 50%, #1d4ed8 100%);
-      border: none;
-      color: white;
-      font-size: 28px;
-      cursor: pointer;
-      box-shadow: 
-        0 8px 32px rgba(30, 58, 138, 0.3),
-        0 0 0 1px rgba(255, 255, 255, 0.1),
-        inset 0 1px 0 rgba(255, 255, 255, 0.2);
-      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      backdrop-filter: blur(20px);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .chat-toggle::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: linear-gradient(135deg, transparent 0%, rgba(255, 255, 255, 0.1) 50%, transparent 100%);
-      transform: translateX(-100%);
-      transition: transform 0.6s ease;
-    }
-
-    .chat-toggle:hover {
-      transform: scale(1.05) translateY(-2px);
-      box-shadow: 
-        0 12px 48px rgba(30, 58, 138, 0.4),
-        0 0 0 1px rgba(255, 255, 255, 0.2),
-        inset 0 1px 0 rgba(255, 255, 255, 0.3);
-    }
-
-    .chat-toggle:hover::before {
-      transform: translateX(100%);
-    }
-
-    .chat-toggle:active {
-      transform: scale(0.98);
-    }
-
-    .chat-toggle.hidden {
-      opacity: 0;
-      visibility: hidden;
-      transform: scale(0.8);
-      pointer-events: none;
-    }
-
-    .chat-window {
-      position: fixed;
-      bottom: 16px;
-      right: 24px;
-      width: 380px;
-      height: 560px;
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(20px) saturate(180%);
-      border-radius: 24px;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      box-shadow: 
-        0 32px 64px rgba(0, 0, 0, 0.12),
-        0 0 0 1px rgba(255, 255, 255, 0.05),
-        inset 0 1px 0 rgba(255, 255, 255, 0.1);
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-      transform: translateY(100%);
-      opacity: 0;
-      transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-      transform-origin: bottom;
-      pointer-events: none;
-    }
-
-    .chat-window.open {
-      transform: scale(1) translateY(0);
-      opacity: 1;
-      pointer-events: auto;
-    }
-
-    .chat-header {
-      background: linear-gradient(135deg, #1e293b 0%, #475569 100%);
-      color: white;
-      padding: 20px 24px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .chat-header::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: linear-gradient(90deg, transparent 0%, rgba(59, 130, 246, 0.1) 50%, transparent 100%);
-      animation: shimmer 3s infinite;
-    }
-
-    .chat-title {
-      font-weight: 700;
-      font-size: 18px;
-      letter-spacing: -0.025em;
-      position: relative;
-      z-index: 1;
-    }
-
-    .chat-status {
-      font-size: 12px;
-      opacity: 0.8;
-      font-weight: 400;
-      position: relative;
-      z-index: 1;
-    }
-
-    .close-btn {
-      background: rgba(255, 255, 255, 0.1);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      color: white;
-      font-size: 18px;
-      cursor: pointer;
-      padding: 8px;
-      width: 36px;
-      height: 36px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 12px;
-      transition: all 0.3s ease;
-      position: relative;
-      z-index: 1;
-    }
-
-    .close-btn:hover {
-      background: rgba(255, 255, 255, 0.2);
-      transform: scale(1.05);
-    }
-
-    .messages-container {
-      flex: 1;
-      overflow-y: auto;
-      padding: 24px;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-      scroll-behavior: smooth;
-    }
-
-    .messages-container::-webkit-scrollbar {
-      width: 6px;
-    }
-
-    .messages-container::-webkit-scrollbar-track {
-      background: rgba(0, 0, 0, 0.05);
-      border-radius: 3px;
-    }
-
-    .messages-container::-webkit-scrollbar-thumb {
-      background: rgba(59, 130, 246, 0.3);
-      border-radius: 3px;
-    }
-
-    .message {
-      max-width: 85%;
-      padding: 16px 20px;
-      border-radius: 20px;
-      word-wrap: break-word;
-      animation: messageSlide 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-      position: relative;
-      font-size: 15px;
-      line-height: 1.5;
-      letter-spacing: -0.01em;
-    }
-
-    .message.user {
-      align-self: flex-end;
-      background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
-      color: white;
-      border-bottom-right-radius: 6px;
-      box-shadow: 0 4px 16px rgba(30, 58, 138, 0.3);
-    }
-
-    .message.bot {
-      align-self: flex-start;
-      background: rgba(248, 250, 252, 0.8);
-      backdrop-filter: blur(10px);
-      color: #1e293b;
-      border-bottom-left-radius: 6px;
-      border: 1px solid rgba(226, 232, 240, 0.5);
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-    }
-
-    .input-container {
-      padding: 20px 24px 24px;
-      border-top: 1px solid rgba(226, 232, 240, 0.5);
-      display: flex;
-      gap: 12px;
-      background: rgba(255, 255, 255, 0.8);
-      backdrop-filter: blur(10px);
-    }
-
-    .message-input {
-      flex: 1;
-      padding: 16px 20px;
-      border: 2px solid rgba(226, 232, 240, 0.5);
-      border-radius: 16px;
-      outline: none;
-      font-size: 15px;
-      background: rgba(255, 255, 255, 0.9);
-      backdrop-filter: blur(10px);
-      transition: all 0.3s ease;
-      font-family: inherit;
-    }
-
-    .message-input:focus {
-      border-color: #3b82f6;
-      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-      background: white;
-    }
-
-    .message-input::placeholder {
-      color: #94a3b8;
-    }
-
-    .send-btn {
-      padding: 16px 24px;
-      background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
-      color: white;
-      border: none;
-      border-radius: 16px;
-      cursor: pointer;
-      font-size: 15px;
-      font-weight: 600;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      box-shadow: 0 4px 16px rgba(30, 58, 138, 0.3);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .send-btn::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: linear-gradient(135deg, transparent 0%, rgba(255, 255, 255, 0.2) 50%, transparent 100%);
-      transform: translateX(-100%);
-      transition: transform 0.6s ease;
-    }
-
-    .send-btn:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 6px 24px rgba(30, 58, 138, 0.4);
-    }
-
-    .send-btn:hover::before {
-      transform: translateX(100%);
-    }
-
-    .send-btn:active {
-      transform: translateY(0);
-    }
-
-    .send-btn:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-      transform: none;
-      box-shadow: 0 2px 8px rgba(30, 58, 138, 0.2);
-    }
-
-    .typing-indicator {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 16px 20px;
-      background: rgba(248, 250, 252, 0.8);
-      backdrop-filter: blur(10px);
-      border-radius: 20px;
-      border-bottom-left-radius: 6px;
-      align-self: flex-start;
-      max-width: 100px;
-      border: 1px solid rgba(226, 232, 240, 0.5);
-      animation: messageSlide 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    .typing-dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, #1e3a8a, #3b82f6);
-      animation: typing 1.4s infinite ease-in-out;
-    }
-
-    .typing-dot:nth-child(1) { animation-delay: -0.32s; }
-    .typing-dot:nth-child(2) { animation-delay: -0.16s; }
-
-    @keyframes messageSlide {
-      from {
-        opacity: 0;
-        transform: translateY(20px) scale(0.95);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-      }
-    }
-
-    @keyframes typing {
-      0%, 80%, 100% {
-        transform: scale(0.8);
-        opacity: 0.5;
-      }
-      40% {
-        transform: scale(1.2);
-        opacity: 1;
-      }
-    }
-
-    @keyframes shimmer {
-      0% { transform: translateX(-100%); }
-      100% { transform: translateX(100%); }
-    }
-
-    /* Dark mode support */
-    @media (prefers-color-scheme: dark) {
-      .chat-window {
-        background: rgba(15, 23, 42, 0.95);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-      }
-
-      .message.bot {
-        background: rgba(30, 41, 59, 0.8);
-        color: #e2e8f0;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-      }
-
-      .message-input {
-        background: rgba(30, 41, 59, 0.9);
-        border: 2px solid rgba(255, 255, 255, 0.1);
-        color: #e2e8f0;
-      }
-
-      .message-input:focus {
-        background: rgba(30, 41, 59, 1);
-        border-color: #3b82f6;
-      }
-
-      .message-input::placeholder {
-        color: #64748b;
-      }
-
-      .input-container {
-        background: rgba(15, 23, 42, 0.8);
-        border-top: 1px solid rgba(255, 255, 255, 0.1);
-      }
-
-      .typing-indicator {
-        background: rgba(30, 41, 59, 0.8);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-      }
-    }
-
-    @media (max-width: 480px) {
-      .chatbot-container {
-        bottom: 16px;
-        right: 16px;
-      }
-
-      .chat-toggle {
-        width: 64px;
-        height: 64px;
-        font-size: 24px;
-      }
-
-      .chat-window {
-        width: 100vw;
-        height: 100dvh;
-        bottom: 0;
-        right: 0;
-        transform: translateY(100%);
-        border-radius: 0;
-        transition: none;
-      }
-
-      .chat-window.open {
-        transform: translateY(0);
-        transition: none;
-      }
-
-      .chat-header {
-        padding: 16px 20px;
-      }
-
-      .messages-container {
-        padding: 20px;
-      }
-
-      .input-container {
-        padding: 16px 20px 20px;
-      }
-
-      .chat-toggle,
-      .message,
-      .send-btn {
-        transition: none;
-        animation: none;
-      }
-
-      .typing-dot {
-        animation: none;
-      }
-    }
-
-    /* Accessibility improvements */
-    @media (prefers-reduced-motion: reduce) {
-      .chat-toggle,
-      .chat-window,
-      .message,
-      .send-btn {
-        transition: none;
-        animation: none;
-      }
-
-      .typing-dot {
-        animation: none;
-      }
-    }
-
-    /* High contrast mode */
-    @media (prefers-contrast: high) {
-      .chat-window {
-        border: 2px solid;
-      }
-
-      .message-input:focus {
-        outline: 2px solid;
-      }
-    }
-  `;
-
+export class ChatbotComponent extends TailwindElement {
     @state()
     private isOpen = false;
 
@@ -493,15 +30,92 @@ export class ChatbotComponent extends LitElement {
     @state()
     private isTyping = false;
 
+    @state()
+    private isMinimized = false;
+
     private messageId = 2;
+    private messagesContainer?: HTMLElement | null;
+
+    static styles = css`
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        
+        @keyframes fade-slide {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .animate-shimmer {
+            animation: shimmer 2s infinite;
+        }
+        
+        .animate-fade-slide {
+            animation: fade-slide 0.3s ease-out;
+        }
+        
+        .animation-delay-200 {
+            animation-delay: 0.2s;
+        }
+        
+        .animation-delay-400 {
+            animation-delay: 0.4s;
+        }
+        
+        .messages-container {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(59, 130, 246, 0.3) rgba(0, 0, 0, 0.05);
+        }
+        
+        .messages-container::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .messages-container::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 3px;
+        }
+        
+        .messages-container::-webkit-scrollbar-thumb {
+            background: rgba(59, 130, 246, 0.3);
+            border-radius: 3px;
+        }
+        
+        .messages-container::-webkit-scrollbar-thumb:hover {
+            background: rgba(59, 130, 246, 0.5);
+        }
+    `;
 
     private toggleChat() {
-        this.isOpen = !this.isOpen;
+        if (this.isMinimized) {
+            this.isMinimized = false;
+        } else {
+            this.isOpen = !this.isOpen;
+        }
         
         // Add haptic feedback for mobile devices
         if ('vibrate' in navigator) {
             navigator.vibrate(50);
         }
+
+        // Auto-focus input when opening
+        if (this.isOpen) {
+            this.updateComplete.then(() => {
+                const input = this.shadowRoot?.querySelector('input');
+                input?.focus();
+            });
+        }
+    }
+
+    private minimizeChat() {
+        this.isMinimized = true;
     }
 
     private handleInputChange(e: Event) {
@@ -513,6 +127,8 @@ export class ChatbotComponent extends LitElement {
         if (e.key === "Enter" && !e.shiftKey) {
             e.preventDefault();
             this.sendMessage();
+        } else if (e.key === "Escape") {
+            this.toggleChat();
         }
     }
 
@@ -522,7 +138,7 @@ export class ChatbotComponent extends LitElement {
         // Add user message
         const userMessage: Message = {
             id: this.messageId.toString(),
-            text: this.currentMessage,
+            text: this.currentMessage.trim(),
             isUser: true,
             timestamp: new Date()
         };
@@ -536,9 +152,15 @@ export class ChatbotComponent extends LitElement {
         // Show typing indicator
         this.isTyping = true;
 
-        // Simulate more realistic bot response delay with AI-like processing
-        const processingTime = 800 + Math.random() * 1200;
-        setTimeout(() => {
+        // Scroll to bottom immediately for user message
+        this.scrollToBottom();
+
+        try {
+            // Simulate more realistic bot response delay with AI-like processing
+            const processingTime = 800 + Math.random() * 1200;
+            
+            await new Promise(resolve => setTimeout(resolve, processingTime));
+            
             this.isTyping = false;
             const botResponse = this.generateBotResponse(messageText);
 
@@ -553,191 +175,246 @@ export class ChatbotComponent extends LitElement {
             this.messageId++;
 
             // Smooth scroll to bottom with enhanced animation
-            this.updateComplete.then(() => {
-                const container = this.shadowRoot?.querySelector('.messages-container');
-                if (container) {
-                    container.scrollTo({
-                        top: container.scrollHeight,
-                        behavior: 'smooth'
-                    });
-                }
-            });
-        }, processingTime);
+            this.scrollToBottom();
+        } catch (error) {
+            this.isTyping = false;
+            const errorMessage: Message = {
+                id: this.messageId.toString(),
+                text: "I apologize, but I encountered an error. Please try again.",
+                isUser: false,
+                timestamp: new Date()
+            };
+            this.messages = [...this.messages, errorMessage];
+            this.messageId++;
+        }
+    }
+
+    private scrollToBottom() {
+        this.updateComplete.then(() => {
+            if (!this.messagesContainer) {
+                this.messagesContainer = this.shadowRoot?.querySelector('.messages-container');
+            }
+            if (this.messagesContainer) {
+                this.messagesContainer.scrollTo({
+                    top: this.messagesContainer.scrollHeight,
+                    behavior: 'smooth'
+                });
+            }
+        });
     }
 
     private generateBotResponse(userMessage: string): string {
-        const message = userMessage.toLowerCase();
+        const message = userMessage.toLowerCase().trim();
+        
+        // Empty message handling
+        if (!message) {
+            return "I didn't receive your message. Could you please try again?";
+        }
         
         // Greetings and introductions
-        if (this.matchesPattern(message, ['hello', 'hi', 'hey', 'good morning', 'good afternoon', 'good evening'])) {
+        if (this.matchesPattern(message, ['hello', 'hi', 'hey', 'good morning', 'good afternoon', 'good evening', 'greetings'])) {
             const greetings = [
                 "Hello! 👋 I'm your AI assistant, ready to help you with anything you need. How can I assist you today?",
                 "Hi there! 😊 I'm here to make your day easier. What would you like to explore or discuss?",
-                "Hey! Great to meet you! I'm your AI companion, equipped to help with questions, tasks, or just a friendly chat. What's on your mind?"
+                "Hey! Great to meet you! I'm your AI companion, equipped to help with questions, tasks, or just a friendly chat. What's on your mind?",
+                "Good to see you! 🌟 I'm your personal AI assistant. Whether you need information, help with tasks, or just want to chat, I'm here for you!"
             ];
             return this.getRandomResponse(greetings);
         }
 
         // Help and support
-        if (this.matchesPattern(message, ['help', 'support', 'assist', 'guide'])) {
+        if (this.matchesPattern(message, ['help', 'support', 'assist', 'guide', 'what can you do', 'capabilities'])) {
             const helpResponses = [
-                "I'm here to help! 🛠️ I can assist with:\n• Product information and recommendations\n• Technical questions and troubleshooting\n• General knowledge and research\n• Creative writing and brainstorming\n• Math and calculations\n• Language translation\n\nWhat specific area do you need help with?",
-                "Absolutely! I'm your AI assistant and I'm here to support you. I can help with information, problem-solving, creative tasks, and much more. What would you like to work on?",
-                "I'd love to help! I'm designed to assist with a wide range of topics. Just let me know what you're looking for, and I'll do my best to provide useful information and guidance."
+                "I'm here to help! 🛠️ I can assist with:\n• Product information and recommendations\n• Technical questions and troubleshooting\n• General knowledge and research\n• Creative writing and brainstorming\n• Math and calculations\n• Language translation and learning\n• Planning and organization\n\nWhat specific area interests you?",
+                "Absolutely! I'm your AI assistant with a wide range of capabilities. I can help with information lookup, problem-solving, creative tasks, learning, and much more. What would you like to work on?",
+                "I'd love to help! 💡 I'm designed to assist with virtually anything - from answering questions to helping with projects. Just let me know what you're looking for!"
             ];
             return this.getRandomResponse(helpResponses);
         }
 
         // Product and shopping related
-        if (this.matchesPattern(message, ['product', 'buy', 'purchase', 'shop', 'store', 'item'])) {
+        if (this.matchesPattern(message, ['product', 'buy', 'purchase', 'shop', 'store', 'item', 'recommendation', 'suggest'])) {
             const productResponses = [
-                "Great! I'd be happy to help you find the perfect product. 🛍️ Our collection includes:\n• Electronics and gadgets\n• Fashion and accessories\n• Home and lifestyle items\n• Books and media\n• Sports and outdoor gear\n\nWhat category interests you, or do you have something specific in mind?",
-                "Excellent choice! I can help you discover amazing products. What type of item are you looking for? I can provide recommendations based on your needs and preferences.",
-                "Shopping time! 🎉 I'm here to help you find exactly what you need. Tell me more about what you're looking for, and I'll guide you to the best options."
+                "Great! I'd be happy to help you find the perfect product. 🛍️ Our collection includes:\n• Electronics and gadgets\n• Fashion and accessories\n• Home and lifestyle items\n• Books and media\n• Sports and outdoor gear\n• Beauty and personal care\n\nWhat category interests you, or do you have something specific in mind?",
+                "Excellent choice! 🎯 I can help you discover amazing products tailored to your needs. What type of item are you looking for? I can provide personalized recommendations.",
+                "Shopping time! 🎉 I'm here to help you find exactly what you need. Tell me more about your preferences, budget, or specific requirements!"
             ];
             return this.getRandomResponse(productResponses);
         }
 
         // Pricing and cost
-        if (this.matchesPattern(message, ['price', 'cost', 'expensive', 'cheap', 'affordable', 'budget'])) {
+        if (this.matchesPattern(message, ['price', 'cost', 'expensive', 'cheap', 'affordable', 'budget', 'money', 'value'])) {
             const priceResponses = [
-                "I'd be happy to help with pricing information! 💰 Our products range from budget-friendly options to premium selections. What specific item or category are you interested in?",
-                "Great question about pricing! We offer competitive prices across all our products. Could you tell me what you're looking for so I can provide specific pricing details?",
-                "Pricing is important! 💡 We have options for every budget. What product or service are you interested in? I'll help you find the best value for your money."
+                "I'd be happy to help with pricing information! 💰 We offer options for every budget, from value picks to premium selections. What specific item or category are you interested in?",
+                "Great question about pricing! 💡 We believe in transparent, competitive pricing. Could you tell me what you're looking for so I can provide specific details?",
+                "Budget-conscious shopping is smart! 🎯 We have excellent options across all price ranges. What product are you considering? I'll help you find the best value."
             ];
             return this.getRandomResponse(priceResponses);
         }
 
         // Technical and programming
-        if (this.matchesPattern(message, ['code', 'programming', 'developer', 'software', 'app', 'website', 'html', 'css', 'javascript', 'python', 'react', 'vue', 'angular'])) {
+        if (this.matchesPattern(message, ['code', 'programming', 'developer', 'software', 'app', 'website', 'html', 'css', 'javascript', 'python', 'react', 'vue', 'angular', 'api', 'database'])) {
             const techResponses = [
-                "Ah, a fellow developer! 👨‍💻 I can help with:\n• Code review and debugging\n• Best practices and architecture\n• Framework-specific questions\n• Algorithm explanations\n• Web development guidance\n\nWhat programming challenge are you facing?",
-                "Programming is my jam! 💻 I can assist with coding questions, explain concepts, help debug issues, or discuss software architecture. What would you like to work on?",
-                "Tech talk! 🚀 I'm well-versed in programming and can help with code, debugging, best practices, and technical concepts. What's your programming question?"
+                "Ah, a fellow developer! 👨‍💻 I can help with:\n• Code review and debugging\n• Best practices and architecture\n• Framework-specific questions\n• Algorithm explanations\n• Web development guidance\n• API design and implementation\n\nWhat programming challenge are you facing?",
+                "Programming is my specialty! 💻 I can assist with coding questions, explain complex concepts, help debug issues, or discuss software architecture. What would you like to work on?",
+                "Tech talk! 🚀 I'm well-versed in multiple programming languages and frameworks. Whether it's frontend, backend, or full-stack development, I'm here to help!"
             ];
             return this.getRandomResponse(techResponses);
         }
 
         // Weather and time
-        if (this.matchesPattern(message, ['weather', 'temperature', 'forecast', 'time', 'date', 'today', 'tomorrow'])) {
+        if (this.matchesPattern(message, ['weather', 'temperature', 'forecast', 'time', 'date', 'today', 'tomorrow', 'climate'])) {
             const weatherResponses = [
-                "I'd love to help with weather information! 🌤️ However, I don't have real-time access to current weather data. You might want to check a weather app or website for the most accurate forecast for your location.",
-                "Weather questions! 🌦️ While I can't provide real-time weather data, I can help you understand weather patterns, climate information, or suggest the best weather apps to use.",
-                "Time and weather! ⏰ For current time and weather, you'll want to check your device's clock and a weather service. But I'm happy to help with other questions!"
+                "I'd love to help with weather information! 🌤️ While I don't have real-time weather access, I can help you understand weather patterns, suggest reliable weather apps, or discuss climate topics.",
+                "Weather questions! 🌦️ For current conditions, I recommend checking a weather app, but I'm happy to discuss weather patterns, seasonal changes, or climate science!",
+                "Time and weather! ⏰ For real-time data, check your device's built-in tools. But I can help with weather-related planning, understanding forecasts, or climate information!"
             ];
             return this.getRandomResponse(weatherResponses);
         }
 
         // Math and calculations
-        if (this.matchesPattern(message, ['calculate', 'math', 'equation', 'solve', 'plus', 'minus', 'multiply', 'divide', '+', '-', '*', '/'])) {
+        if (this.matchesPattern(message, ['calculate', 'math', 'equation', 'solve', 'formula']) || /[\d+\-*/().]/.test(message)) {
             try {
-                // Simple math evaluation (be careful with eval in production)
+                // Simple math evaluation (enhanced safety)
                 const mathExpression = message.replace(/[^0-9+\-*/().\s]/g, '');
-                if (mathExpression.match(/^[0-9+\-*/().\s]+$/)) {
-                    const result = eval(mathExpression);
-                    return `Let me calculate that for you! 🧮\n\n${mathExpression} = ${result}`;
+                if (mathExpression.match(/^[0-9+\-*/().\s]+$/) && mathExpression.trim()) {
+                    const result = Function(`"use strict"; return (${mathExpression})`)();
+                    if (typeof result === 'number' && isFinite(result)) {
+                        return `Let me calculate that for you! 🧮\n\n${mathExpression.trim()} = ${result}`;
+                    }
                 }
             } catch (e) {
-                // If eval fails, provide a helpful response
+                // If calculation fails, provide helpful response
             }
-            return "I can help with math calculations! 🧮 Just type your equation (like '2 + 2' or '10 * 5') and I'll solve it for you.";
+            return "I can help with math calculations! 🧮 Just type your equation (like '2 + 2' or '10 * 5') and I'll solve it for you. I can also help explain mathematical concepts!";
         }
 
         // Creative writing and content
-        if (this.matchesPattern(message, ['write', 'story', 'poem', 'creative', 'content', 'blog', 'article'])) {
+        if (this.matchesPattern(message, ['write', 'story', 'poem', 'creative', 'content', 'blog', 'article', 'essay', 'letter'])) {
             const creativeResponses = [
-                "Creative writing is one of my favorite things! ✍️ I can help you with:\n• Story ideas and plot development\n• Poetry and creative writing\n• Blog posts and articles\n• Marketing copy\n• Character development\n\nWhat type of creative project are you working on?",
-                "Let's get creative! 🎨 I love helping with writing projects. Whether it's a story, poem, article, or any other content, I'm here to inspire and assist. What would you like to create?",
-                "Creative writing time! ✨ I can help brainstorm ideas, develop characters, write poetry, or assist with any writing project. What's your creative vision?"
+                "Creative writing is one of my passions! ✍️ I can help you with:\n• Story ideas and plot development\n• Poetry and creative writing\n• Blog posts and articles\n• Marketing copy and content\n• Character development\n• Writing techniques\n\nWhat type of creative project are you working on?",
+                "Let's get creative! 🎨 I love helping with writing projects. Whether it's fiction, non-fiction, poetry, or professional content, I'm here to inspire and guide you.",
+                "Creative writing time! ✨ I can help brainstorm ideas, develop narratives, improve style, or assist with any writing challenge. What's your creative vision?"
             ];
             return this.getRandomResponse(creativeResponses);
         }
 
         // Health and wellness
-        if (this.matchesPattern(message, ['health', 'fitness', 'exercise', 'diet', 'nutrition', 'workout', 'gym'])) {
+        if (this.matchesPattern(message, ['health', 'fitness', 'exercise', 'diet', 'nutrition', 'workout', 'gym', 'wellness', 'mental health'])) {
             const healthResponses = [
-                "Health and wellness are so important! 💪 I can provide general information about:\n• Exercise and fitness tips\n• Nutrition and healthy eating\n• Wellness practices\n• Mental health support\n\nRemember, I'm not a medical professional, so always consult with healthcare providers for medical advice.",
-                "Great focus on health! 🏃‍♂️ I can share general wellness information and tips, but for specific medical advice, please consult with healthcare professionals. What wellness topic interests you?",
-                "Health is wealth! 🌟 I can provide general fitness and nutrition information, but remember to consult healthcare professionals for medical advice. What health topic would you like to explore?"
+                "Health and wellness are so important! 💪 I can provide general information about:\n• Exercise and fitness tips\n• Nutrition and healthy eating\n• Wellness practices and habits\n• Mental health resources\n• Stress management\n\n⚠️ Remember, I'm not a medical professional, so always consult healthcare providers for medical advice.",
+                "Great focus on health! 🏃‍♂️ I can share evidence-based wellness information and tips, but for specific medical concerns, please consult qualified healthcare professionals.",
+                "Health is wealth! 🌟 I can provide general fitness, nutrition, and wellness information to support your healthy lifestyle goals. What area interests you most?"
             ];
             return this.getRandomResponse(healthResponses);
         }
 
         // Travel and location
-        if (this.matchesPattern(message, ['travel', 'vacation', 'trip', 'destination', 'hotel', 'flight', 'visit'])) {
+        if (this.matchesPattern(message, ['travel', 'vacation', 'trip', 'destination', 'hotel', 'flight', 'visit', 'tourism', 'adventure'])) {
             const travelResponses = [
-                "Travel planning is exciting! ✈️ I can help with:\n• Destination recommendations\n• Travel tips and advice\n• Cultural information\n• General travel planning\n\nWhere are you thinking of traveling, or what kind of trip are you planning?",
-                "Adventure awaits! 🗺️ I love helping with travel planning. I can provide destination insights, travel tips, and cultural information. What's your travel dream?",
-                "Let's plan your next adventure! 🌍 I can help with travel recommendations, tips, and destination information. Where would you like to explore?"
+                "Travel planning is exciting! ✈️ I can help with:\n• Destination recommendations\n• Travel tips and packing advice\n• Cultural information and etiquette\n• Budget planning for trips\n• Activity suggestions\n\nWhere are you thinking of traveling, or what kind of adventure are you planning?",
+                "Adventure awaits! 🗺️ I love helping with travel planning. I can provide destination insights, cultural tips, and practical travel advice. What's your travel dream?",
+                "Let's plan your next adventure! 🌍 I can help with everything from choosing destinations to planning itineraries. Where would you like to explore?"
             ];
             return this.getRandomResponse(travelResponses);
         }
 
         // Entertainment and media
-        if (this.matchesPattern(message, ['movie', 'film', 'tv', 'show', 'book', 'music', 'game', 'entertainment'])) {
+        if (this.matchesPattern(message, ['movie', 'film', 'tv', 'show', 'book', 'music', 'game', 'entertainment', 'netflix', 'streaming'])) {
             const entertainmentResponses = [
-                "Entertainment is my jam! 🎬 I can help with:\n• Movie and TV show recommendations\n• Book suggestions\n• Music recommendations\n• Gaming discussions\n• Entertainment news and trends\n\nWhat type of entertainment are you interested in?",
-                "Let's talk entertainment! 🎵 I can suggest movies, books, music, and more based on your preferences. What are you in the mood for?",
-                "Entertainment time! 🎮 I love discussing movies, books, music, and games. What's your favorite genre or what are you looking to discover?"
+                "Entertainment is my specialty! 🎬 I can help with:\n• Movie and TV show recommendations\n• Book suggestions across all genres\n• Music recommendations\n• Gaming discussions and reviews\n• Entertainment trends and analysis\n\nWhat type of entertainment are you interested in exploring?",
+                "Let's talk entertainment! 🎵 I can suggest content based on your preferences, discuss plots, or help you discover hidden gems. What genre or medium interests you?",
+                "Entertainment time! 🎮 I love discussing movies, books, music, and games. Whether you want recommendations or want to analyze your favorites, I'm here!"
             ];
             return this.getRandomResponse(entertainmentResponses);
         }
 
+        // Learning and education
+        if (this.matchesPattern(message, ['learn', 'study', 'education', 'teach', 'explain', 'course', 'skill', 'knowledge'])) {
+            const learningResponses = [
+                "Learning is wonderful! 📚 I can help you:\n• Understand complex topics\n• Break down difficult concepts\n• Create study plans\n• Find learning resources\n• Practice and test knowledge\n\nWhat subject or skill would you like to explore?",
+                "I love helping people learn! 🎓 Whether it's academic subjects, practical skills, or personal interests, I can explain concepts and guide your learning journey.",
+                "Knowledge is power! 💡 I can adapt my explanations to your learning style and help make any topic more understandable. What would you like to learn about?"
+            ];
+            return this.getRandomResponse(learningResponses);
+        }
+
         // Gratitude and politeness
-        if (this.matchesPattern(message, ['thank', 'thanks', 'appreciate', 'grateful'])) {
+        if (this.matchesPattern(message, ['thank', 'thanks', 'appreciate', 'grateful', 'awesome', 'great', 'excellent'])) {
             const gratitudeResponses = [
-                "You're absolutely welcome! 😊 It's my pleasure to help. Is there anything else I can assist you with today?",
-                "Thank you for the kind words! 🙏 I'm here whenever you need help or just want to chat. What else can I do for you?",
-                "You're very welcome! 💖 I enjoy helping and chatting with you. Feel free to ask me anything else!"
+                "You're absolutely welcome! 😊 It's my pleasure to help. Your kind words mean a lot! Is there anything else I can assist you with?",
+                "Thank you for the wonderful feedback! 🙏 I genuinely enjoy helping and chatting with you. What else can I do for you today?",
+                "You're very welcome! 💖 I'm here whenever you need assistance or just want to have a conversation. Feel free to ask me anything!"
             ];
             return this.getRandomResponse(gratitudeResponses);
         }
 
         // Goodbyes and farewells
-        if (this.matchesPattern(message, ['bye', 'goodbye', 'see you', 'farewell', 'later'])) {
+        if (this.matchesPattern(message, ['bye', 'goodbye', 'see you', 'farewell', 'later', 'exit', 'quit'])) {
             const goodbyeResponses = [
                 "Goodbye! 👋 It's been wonderful chatting with you. Feel free to return anytime - I'm always here and ready to help. Have a fantastic day!",
-                "See you later! 😊 Thanks for the great conversation. Don't hesitate to come back if you need anything. Take care!",
-                "Farewell! 🌟 It's been a pleasure helping you today. I'll be here when you need me again. Have an amazing day ahead!"
+                "See you later! 😊 Thanks for the great conversation. Don't hesitate to come back whenever you need assistance. Take care!",
+                "Farewell! 🌟 It's been a pleasure helping you today. I'll be here when you need me again. Have an amazing day ahead!",
+                "Until next time! 🌈 I really enjoyed our conversation. Remember, I'm just a click away whenever you need help or want to chat!"
             ];
             return this.getRandomResponse(goodbyeResponses);
         }
 
         // Questions and curiosity
-        if (message.includes('?') || this.matchesPattern(message, ['what', 'how', 'why', 'when', 'where', 'who', 'which'])) {
+        if (message.includes('?') || this.matchesPattern(message, ['what', 'how', 'why', 'when', 'where', 'who', 'which', 'can you'])) {
             const questionResponses = [
-                "That's a great question! 🤔 I'd be happy to help you find the answer. Could you provide a bit more context so I can give you the most helpful response?",
-                "Interesting question! 💭 I'm here to help you explore and find answers. What specific information are you looking for?",
-                "I love curious minds! 🧠 That's a thoughtful question. Let me help you find the information you need. Could you tell me more about what you're trying to understand?"
+                "That's a fantastic question! 🤔 I'd be happy to help you find the answer. Could you provide a bit more context so I can give you the most helpful and accurate response?",
+                "Excellent question! 💭 I love curious minds. Let me help you explore this topic thoroughly. What specific aspect would you like me to focus on?",
+                "Great inquiry! 🧠 I'm here to help you understand and find answers. Could you tell me more about what you're trying to learn or accomplish?"
             ];
             return this.getRandomResponse(questionResponses);
         }
 
-        // Default intelligent responses
+        // Complaints or negative feedback
+        if (this.matchesPattern(message, ['bad', 'terrible', 'awful', 'hate', 'stupid', 'useless', 'wrong', 'error'])) {
+            const supportiveResponses = [
+                "I'm sorry you're having a frustrating experience! 😔 I genuinely want to help make things better. Could you tell me what's going wrong so I can assist you properly?",
+                "I understand your frustration, and I apologize if something isn't working as expected. 🤝 Let me help you resolve this issue. What specifically can I help improve?",
+                "That sounds really frustrating! 💙 I'm here to help turn this around. Please let me know what's bothering you, and I'll do my best to make it right."
+            ];
+            return this.getRandomResponse(supportiveResponses);
+        }
+
+        // Default intelligent responses (enhanced)
         const defaultResponses = [
-            "That's an interesting topic! 🤔 I'd love to help you explore this further. Could you tell me more about what you're looking for or what specific information would be most helpful?",
-            "I appreciate you sharing that with me! 💭 I think I can provide some valuable insights. What aspect of this would you like to focus on or learn more about?",
-            "That's fascinating! 🌟 I'd be happy to help you dive deeper into this topic. What specific questions do you have or what would you like to know more about?",
-            "Great point! 💡 I can help you explore this topic and provide useful information. What would be most helpful for you right now?",
-            "I understand what you're getting at! 🎯 Let me help you find the information or assistance you need. What's your main goal or question here?",
-            "That's a wonderful topic to discuss! ✨ I'm here to help you learn more and find the answers you're looking for. What specific aspect interests you most?"
+            "That's a really interesting topic! 🤔 I'd love to help you explore this further. Could you tell me more about what specific information or assistance would be most valuable to you?",
+            "I appreciate you sharing that with me! 💭 I think I can provide some valuable insights or assistance. What aspect of this would you like to focus on or dive deeper into?",
+            "That's fascinating! 🌟 I'd be happy to help you learn more about this subject. What specific questions do you have, or what kind of help are you looking for?",
+            "Great point! 💡 I can definitely help you explore this topic and provide useful information or guidance. What would be most helpful for you right now?",
+            "I understand what you're getting at! 🎯 Let me help you find the information, resources, or assistance you need. What's your main goal or objective here?",
+            "That's a wonderful topic to discuss! ✨ I'm here to help you learn, understand, or accomplish whatever you're working on. What specific aspect interests you most?",
+            "Interesting perspective! 🔍 I'd love to help you with this. Could you share a bit more detail about what you're looking for or what you'd like to achieve?"
         ];
         return this.getRandomResponse(defaultResponses);
     }
 
     private matchesPattern(message: string, patterns: string[]): boolean {
-        return patterns.some(pattern => message.includes(pattern));
+        return patterns.some(pattern => 
+            message.includes(pattern) || 
+            message.split(' ').some(word => word === pattern)
+        );
     }
 
     private getRandomResponse(responses: string[]): string {
         return responses[Math.floor(Math.random() * responses.length)];
     }
 
+    private clearChat() {
+        this.messages = [this.messages[0]]; // Keep the initial greeting
+        this.messageId = 2;
+    }
+
     render() {
         return html`
-      <div class="chatbot-container">
+      <div class="fixed bottom-6 right-6 z-50">
+        <!-- Chat Toggle Button -->
         <button 
-          class="chat-toggle ${this.isOpen ? 'hidden' : ''}" 
+          class="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 text-white text-2xl transition-all duration-300 ease-out hover:scale-110 hover:-translate-y-1 hover:shadow-2xl active:scale-95 shadow-lg flex items-center justify-center backdrop-blur-sm border-2 border-blue-400/30 ${this.isOpen ? 'opacity-0 invisible scale-75 pointer-events-none' : ''}" 
           @click=${this.toggleChat}
           aria-label="${this.isOpen ? 'Close chat' : 'Open chat'}"
           role="button"
@@ -745,60 +422,126 @@ export class ChatbotComponent extends LitElement {
           💬
         </button>
         
-        <div class="chat-window ${this.isOpen ? "open" : ""}" role="dialog" aria-label="Chat window">
-          <div class="chat-header">
-            <div>
-              <div class="chat-title">AI Assistant</div>
-              <div class="chat-status">Online • Powered by AI</div>
+        <!-- Chat Window -->
+        <div class="fixed bottom-4 right-4 w-96 h-[36rem] bg-white/95 backdrop-blur-xl rounded-2xl border border-white/20 shadow-2xl flex flex-col overflow-hidden transition-all duration-500 ease-out ${this.isOpen && !this.isMinimized ? "scale-100 translate-y-0 opacity-100 pointer-events-auto" : "scale-95 translate-y-full opacity-0 pointer-events-none"} sm:w-screen sm:h-screen sm:bottom-0 sm:right-0 sm:rounded-none" role="dialog" aria-label="Chat window" aria-modal="true">
+          
+          <!-- Header -->
+          <div class="bg-gradient-to-r from-slate-800 to-slate-700 text-white p-4 flex items-center justify-between relative overflow-hidden">
+            <div class="absolute inset-0 bg-gradient-to-r from-transparent via-blue-500/10 to-transparent animate-shimmer"></div>
+            <div class="relative z-10 flex items-center gap-3">
+              <div class="w-3 h-3 rounded-full bg-green-400 animate-pulse"></div>
+              <div>
+                <div class="font-bold text-lg tracking-tight">AI Assistant</div>
+                <div class="text-sm opacity-80 font-normal">Ready to help • Powered by AI</div>
+              </div>
             </div>
-            <button 
-              class="close-btn" 
-              @click=${this.toggleChat}
-              aria-label="Close chat"
-            >✕</button>
+            <div class="relative z-10 flex items-center gap-2">
+              <button 
+                class="bg-white/10 hover:bg-white/20 text-white text-sm cursor-pointer p-2 w-8 h-8 flex items-center justify-center rounded-lg transition-all duration-200" 
+                @click=${this.clearChat}
+                aria-label="Clear chat history"
+                title="Clear chat"
+              >🗑️</button>
+              <button 
+                class="bg-white/10 hover:bg-white/20 text-white text-sm cursor-pointer p-2 w-8 h-8 flex items-center justify-center rounded-lg transition-all duration-200" 
+                @click=${this.minimizeChat}
+                aria-label="Minimize chat"
+                title="Minimize"
+              >—</button>
+              <button 
+                class="bg-white/10 hover:bg-white/20 text-white text-lg cursor-pointer p-2 w-8 h-8 flex items-center justify-center rounded-lg transition-all duration-200" 
+                @click=${this.toggleChat}
+                aria-label="Close chat"
+                title="Close"
+              >✕</button>
+            </div>
           </div>
           
-          <div class="messages-container" role="log" aria-live="polite">
-            ${this.messages.map(message => html`
+          <!-- Messages Container -->
+          <div class="flex-1 overflow-y-auto p-4 flex flex-col gap-3 messages-container" role="log" aria-live="polite" aria-label="Chat messages">
+            ${this.messages.map((message, index) => html`
               <div 
-                class="message ${message.isUser ? "user" : "bot"}"
+                class="max-w-[85%] px-4 py-3 rounded-2xl break-words animate-fade-slide text-sm leading-relaxed ${message.isUser ? "self-end bg-gradient-to-br from-blue-500 to-blue-700 text-white rounded-br-md shadow-md" : "self-start bg-gray-50 text-gray-800 rounded-bl-md border border-gray-200 shadow-sm"}"
                 role="${message.isUser ? 'user' : 'assistant'}"
                 aria-label="${message.isUser ? 'Your message' : 'Assistant message'}"
+                style="animation-delay: ${index * 0.1}s"
               >
-                ${message.text}
+                <div class="whitespace-pre-wrap">${message.text}</div>
+                <div class="text-xs opacity-60 mt-1">
+                  ${message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                </div>
               </div>
             `)}
             
             ${this.isTyping ? html`
-              <div class="typing-indicator" aria-label="Assistant is typing">
-                <div class="typing-dot"></div>
-                <div class="typing-dot"></div>
-                <div class="typing-dot"></div>
+              <div class="flex items-center gap-2 px-4 py-3 bg-gray-50 rounded-2xl rounded-bl-md self-start max-w-20 border border-gray-200 animate-fade-slide" aria-label="Assistant is typing">
+                <div class="flex gap-1">
+                  <div class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></div>
+                  <div class="w-2 h-2 rounded-full bg-blue-500 animate-pulse animation-delay-200"></div>
+                  <div class="w-2 h-2 rounded-full bg-blue-500 animate-pulse animation-delay-400"></div>
+                </div>
+                <span class="text-xs text-gray-500">AI is thinking...</span>
               </div>
             ` : ""}
           </div>
           
-          <div class="input-container">
-            <input
-              type="text"
-              class="message-input"
-              placeholder="Ask me anything..."
-              .value=${this.currentMessage}
-              @input=${this.handleInputChange}
-              @keypress=${this.handleKeyPress}
-              aria-label="Type your message"
-              autocomplete="off"
-            />
+          <!-- Input Area -->
+          <div class="p-4 border-t border-gray-200 flex gap-3 bg-white/90 backdrop-blur-sm">
+            <div class="flex-1 relative">
+              <input
+                type="text"
+                class="w-full px-4 py-3 pr-12 border-2 border-gray-200 rounded-xl outline-none text-sm bg-white transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 placeholder-gray-400"
+                placeholder="Type your message... (Press Enter to send, Esc to close)"
+                .value=${this.currentMessage}
+                @input=${this.handleInputChange}
+                @keydown=${this.handleKeyPress}
+                aria-label="Type your message"
+                autocomplete="off"
+                maxlength="1000"
+              />
+              <div class="absolute right-3 top-1/2 transform -translate-y-1/2 text-xs text-gray-400">
+                ${this.currentMessage.length}/1000
+              </div>
+            </div>
             <button
-              class="send-btn"
+              class="px-4 py-3 bg-gradient-to-br from-blue-500 to-blue-700 text-white border-none rounded-xl cursor-pointer text-sm font-semibold transition-all duration-200 shadow-md hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-sm min-w-[4rem]"
               @click=${this.sendMessage}
-              ?disabled=${!this.currentMessage.trim()}
+              ?disabled=${!this.currentMessage.trim() || this.isTyping}
               aria-label="Send message"
             >
-              Send
+              ${this.isTyping ? "..." : "Send"}
             </button>
           </div>
         </div>
+
+        <!-- Minimized Chat Window -->
+        ${this.isMinimized ? html`
+          <div class="fixed bottom-4 right-4 w-80 bg-white/95 backdrop-blur-xl rounded-xl border border-white/20 shadow-xl p-4 transition-all duration-300" role="dialog" aria-label="Minimized chat">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div class="w-2 h-2 rounded-full bg-green-400"></div>
+                <span class="font-medium text-gray-800">AI Assistant</span>
+                <span class="text-xs text-gray-500">${this.messages.length} messages</span>
+              </div>
+              <div class="flex gap-2">
+                <button 
+                  class="bg-blue-500 hover:bg-blue-600 text-white text-xs px-3 py-1 rounded-md transition-colors"
+                  @click=${this.toggleChat}
+                  aria-label="Restore chat"
+                >
+                  Restore
+                </button>
+                <button 
+                  class="text-gray-400 hover:text-gray-600 text-sm"
+                  @click=${() => { this.isMinimized = false; this.isOpen = false; }}
+                  aria-label="Close chat"
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+          </div>
+        ` : ""}
       </div>
     `;
     }

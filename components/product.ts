@@ -1,5 +1,6 @@
-import { LitElement, html, css } from "lit";
+import { html } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
+import { TailwindElement } from "../shared/tailwindMixin.js";
 
 interface Product {
   id: string;
@@ -11,260 +12,7 @@ interface Product {
 }
 
 @customElement("product-component")
-export class ProductComponent extends LitElement {
-  static styles = css`
-    :host {
-      display: block;
-      font-family: Arial, sans-serif;
-    }
-
-    .product-card {
-      background: #ffffff;
-      border-radius: 12px;
-      padding: 20px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-      max-width: 400px;
-      margin: 0 auto;
-    }
-
-    .product-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-    }
-
-    .image-slider {
-      position: relative;
-      width: 100%;
-      height: 250px;
-      border-radius: 8px;
-      overflow: hidden;
-      margin-bottom: 16px;
-    }
-
-    .slider-container {
-      position: relative;
-      width: 100%;
-      height: 100%;
-      display: flex;
-      transition: transform 0.3s ease;
-    }
-
-    .product-image {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      cursor: pointer;
-      flex-shrink: 0;
-      transition: transform 0.3s ease;
-    }
-
-    .product-image:hover {
-      transform: scale(1.02);
-    }
-
-    .slider-nav {
-      position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-      background: rgba(255, 255, 255, 0.8);
-      border: none;
-      border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.2rem;
-      font-weight: bold;
-      color: #2c3e50;
-      transition: all 0.3s ease;
-      z-index: 2;
-    }
-
-    .slider-nav:hover {
-      background: rgba(255, 255, 255, 0.95);
-      transform: translateY(-50%) scale(1.1);
-    }
-
-    .slider-nav.prev {
-      left: 10px;
-    }
-
-    .slider-nav.next {
-      right: 10px;
-    }
-
-    .slider-nav:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-
-    .slider-nav:disabled:hover {
-      transform: translateY(-50%) scale(1);
-      background: rgba(255, 255, 255, 0.8);
-    }
-
-    .slider-dots {
-      position: absolute;
-      bottom: 10px;
-      left: 50%;
-      transform: translateX(-50%);
-      display: flex;
-      gap: 8px;
-      z-index: 2;
-    }
-
-    .slider-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.5);
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-
-    .slider-dot.active {
-      background: rgba(255, 255, 255, 0.9);
-      transform: scale(1.2);
-    }
-
-    .product-title {
-      font-size: 1.5rem;
-      font-weight: bold;
-      color: #2c3e50;
-      margin: 16px 0 8px 0;
-      line-height: 1.3;
-    }
-
-    .product-description {
-      color: #666;
-      font-size: 1rem;
-      line-height: 1.5;
-      margin-bottom: 16px;
-      display: -webkit-box;
-      -webkit-line-clamp: 3;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
-
-    .product-price {
-      font-size: 1.25rem;
-      font-weight: bold;
-      color: #e74c3c;
-      margin-bottom: 16px;
-    }
-
-    .product-actions {
-      display: flex;
-      gap: 12px;
-    }
-
-    .btn {
-      padding: 12px 24px;
-      border: none;
-      border-radius: 6px;
-      font-size: 1rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      flex: 1;
-    }
-
-    .btn-primary {
-      background: #3498db;
-      color: white;
-    }
-
-    .btn-primary:hover {
-      background: #2980b9;
-      transform: translateY(-1px);
-    }
-
-    .btn-secondary {
-      background: #ecf0f1;
-      color: #2c3e50;
-      border: 2px solid #bdc3c7;
-    }
-
-    .btn-secondary:hover {
-      background: #d5dbdb;
-      border-color: #95a5a6;
-    }
-
-    .fullscreen-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      background: rgba(0, 0, 0, 0.9);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 1000;
-      opacity: 0;
-      visibility: hidden;
-      transition: all 0.3s ease;
-    }
-
-    .fullscreen-overlay.open {
-      opacity: 1;
-      visibility: visible;
-    }
-
-    .fullscreen-image {
-      max-width: 90vw;
-      max-height: 90vh;
-      object-fit: contain;
-      border-radius: 8px;
-      transform: scale(0.8);
-      transition: transform 0.3s ease;
-    }
-
-    .fullscreen-overlay.open .fullscreen-image {
-      transform: scale(1);
-    }
-
-    .close-button {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      background: rgba(255, 255, 255, 0.2);
-      border: none;
-      color: white;
-      font-size: 2rem;
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: background 0.3s ease;
-    }
-
-    .close-button:hover {
-      background: rgba(255, 255, 255, 0.3);
-    }
-
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-        transform: translateY(20px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    .product-card {
-      animation: fadeIn 0.5s ease forwards;
-    }
-  `;
-
+export class ProductComponent extends TailwindElement {
   @property({ type: Object })
   product: Product = {
     id: "1",
@@ -329,6 +77,23 @@ export class ProductComponent extends LitElement {
     this.openFullscreen();
   }
 
+  private addToCart() {
+    // Dispatch custom event for product-image-slider to catch
+    this.dispatchEvent(new CustomEvent('product-added', {
+      detail: {
+        productId: this.product.id,
+        productName: this.product.title,
+        productImage: this.product.images[0],
+        price: parseFloat(this.product.price.replace('$', '')),
+        quantity: 1,
+        cartItemCount: 1, // This would come from actual cart state
+        cartTotal: parseFloat(this.product.price.replace('$', ''))
+      },
+      bubbles: true,
+      composed: true
+    }));
+  }
+
   connectedCallback() {
     super.connectedCallback();
     document.addEventListener('keydown', this.handleKeyDown);
@@ -345,17 +110,17 @@ export class ProductComponent extends LitElement {
     const currentImageAlt = this.product.imageAlts?.[this.currentImageIndex] || this.product.title;
 
     return html`
-      <div class="product-card">
-        <div class="image-slider">
+      <div class="bg-white rounded-xl p-5 shadow-lg hover:shadow-xl transition-all duration-300 ease-out hover:-translate-y-1 max-w-sm mx-auto animate-fadeIn">
+        <div class="relative w-full h-64 rounded-lg overflow-hidden mb-4">
           <div 
-            class="slider-container" 
+            class="relative w-full h-full flex transition-transform duration-300 ease-out"
             style="transform: translateX(-${this.currentImageIndex * 100}%)"
           >
             ${this.product.images.map((image, index) => html`
               <img
                 src="${image}"
                 alt="${this.product.imageAlts?.[index] || this.product.title}"
-                class="product-image"
+                class="w-full h-full object-cover cursor-pointer flex-shrink-0 transition-transform duration-300 hover:scale-105"
                 @click=${() => this.openImageFullscreen(index)}
               />
             `)}
@@ -363,24 +128,24 @@ export class ProductComponent extends LitElement {
           
           ${this.product.images.length > 1 ? html`
             <button 
-              class="slider-nav prev" 
+              class="absolute top-1/2 left-2.5 -translate-y-1/2 bg-white/80 hover:bg-white/95 border-0 rounded-full w-10 h-10 cursor-pointer flex items-center justify-center text-xl font-bold text-slate-700 transition-all duration-300 hover:scale-110 z-10 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:bg-white/80"
               @click=${this.prevImage}
               ?disabled=${this.currentImageIndex === 0}
             >
               ‹
             </button>
             <button 
-              class="slider-nav next" 
+              class="absolute top-1/2 right-2.5 -translate-y-1/2 bg-white/80 hover:bg-white/95 border-0 rounded-full w-10 h-10 cursor-pointer flex items-center justify-center text-xl font-bold text-slate-700 transition-all duration-300 hover:scale-110 z-10 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:bg-white/80"
               @click=${this.nextImage}
               ?disabled=${this.currentImageIndex === this.product.images.length - 1}
             >
               ›
             </button>
             
-            <div class="slider-dots">
+            <div class="absolute bottom-2.5 left-1/2 -translate-x-1/2 flex gap-2 z-10">
               ${this.product.images.map((_, index) => html`
                 <div 
-                  class="slider-dot ${index === this.currentImageIndex ? 'active' : ''}"
+                  class="w-2 h-2 rounded-full cursor-pointer transition-all duration-300 ${index === this.currentImageIndex ? 'bg-white/90 scale-125' : 'bg-white/50'}"
                   @click=${() => this.goToImage(index)}
                 ></div>
               `)}
@@ -388,29 +153,65 @@ export class ProductComponent extends LitElement {
           ` : ''}
         </div>
         
-        <h3 class="product-title">${this.product.title}</h3>
+        <h3 class="text-2xl font-bold text-slate-700 mb-2 leading-tight">${this.product.title}</h3>
         
-        <p class="product-description">${this.product.description}</p>
+        <p class="text-gray-600 text-base leading-relaxed mb-4 line-clamp-3">${this.product.description}</p>
         
-        <div class="product-price">${this.product.price}</div>
+        <div class="text-xl font-bold text-red-500 mb-4">${this.product.price}</div>
         
-        <div class="product-actions">
-          <button class="btn btn-primary">Add to Cart</button>
-          <button class="btn btn-secondary">View Details</button>
+        <div class="flex gap-3">
+          <button 
+            class="flex-1 py-3 px-6 border-0 rounded-md text-base font-semibold cursor-pointer transition-all duration-300 bg-blue-500 text-white hover:bg-blue-600 hover:-translate-y-0.5"
+            @click=${this.addToCart}
+          >
+            Add to Cart
+          </button>
+          <button class="flex-1 py-3 px-6 border-2 border-gray-300 rounded-md text-base font-semibold cursor-pointer transition-all duration-300 bg-gray-100 text-slate-700 hover:bg-gray-200 hover:border-gray-400">
+            View Details
+          </button>
         </div>
       </div>
 
       <div 
-        class="fullscreen-overlay ${this.isFullscreenOpen ? 'open' : ''}"
+        class="fixed top-0 left-0 w-screen h-screen bg-black/90 flex items-center justify-center z-[1000] transition-all duration-300 ${this.isFullscreenOpen ? 'opacity-100 visible' : 'opacity-0 invisible'}"
         @click=${this.handleOverlayClick}
       >
-        <button class="close-button" @click=${this.closeFullscreen}>×</button>
+        <button 
+          class="absolute top-5 right-5 bg-white/20 hover:bg-white/30 border-0 text-white text-3xl w-12 h-12 rounded-full cursor-pointer flex items-center justify-center transition-colors duration-300"
+          @click=${this.closeFullscreen}
+        >
+          ×
+        </button>
         <img
           src="${currentImage}"
           alt="${currentImageAlt}"
-          class="fullscreen-image"
+          class="max-w-[90vw] max-h-[90vh] object-contain rounded-lg transition-transform duration-300 ${this.isFullscreenOpen ? 'scale-100' : 'scale-80'}"
         />
       </div>
+
+      <style>
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        
+        .animate-fadeIn {
+          animation: fadeIn 0.5s ease forwards;
+        }
+        
+        .line-clamp-3 {
+          display: -webkit-box;
+          -webkit-line-clamp: 3;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+        }
+      </style>
     `;
   }
 }
