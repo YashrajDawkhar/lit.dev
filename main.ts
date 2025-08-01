@@ -6,5 +6,5 @@ import "./components/morph-shape-component";
 import "./components/form";
 import "./components/product";
 import "./components/chatbot";
-
+import "./components/product_image_slider";
 
