@@ -27,13 +27,13 @@ export class ChatbotComponent extends LitElement {
       width: 72px;
       height: 72px;
       border-radius: 50%;
-      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%);
+      background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 50%, #1d4ed8 100%);
       border: none;
       color: white;
       font-size: 28px;
       cursor: pointer;
       box-shadow: 
-        0 8px 32px rgba(99, 102, 241, 0.3),
+        0 8px 32px rgba(30, 58, 138, 0.3),
         0 0 0 1px rgba(255, 255, 255, 0.1),
         inset 0 1px 0 rgba(255, 255, 255, 0.2);
       transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -60,7 +60,7 @@ export class ChatbotComponent extends LitElement {
     .chat-toggle:hover {
       transform: scale(1.05) translateY(-2px);
       box-shadow: 
-        0 12px 48px rgba(99, 102, 241, 0.4),
+        0 12px 48px rgba(30, 58, 138, 0.4),
         0 0 0 1px rgba(255, 255, 255, 0.2),
         inset 0 1px 0 rgba(255, 255, 255, 0.3);
     }
@@ -111,7 +111,7 @@ export class ChatbotComponent extends LitElement {
     }
 
     .chat-header {
-      background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+      background: linear-gradient(135deg, #1e293b 0%, #475569 100%);
       color: white;
       padding: 20px 24px;
       display: flex;
@@ -128,7 +128,7 @@ export class ChatbotComponent extends LitElement {
       left: 0;
       right: 0;
       bottom: 0;
-      background: linear-gradient(90deg, transparent 0%, rgba(99, 102, 241, 0.1) 50%, transparent 100%);
+      background: linear-gradient(90deg, transparent 0%, rgba(59, 130, 246, 0.1) 50%, transparent 100%);
       animation: shimmer 3s infinite;
     }
 
@@ -191,7 +191,7 @@ export class ChatbotComponent extends LitElement {
     }
 
     .messages-container::-webkit-scrollbar-thumb {
-      background: rgba(99, 102, 241, 0.3);
+      background: rgba(59, 130, 246, 0.3);
       border-radius: 3px;
     }
 
@@ -209,10 +209,10 @@ export class ChatbotComponent extends LitElement {
 
     .message.user {
       align-self: flex-end;
-      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+      background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
       color: white;
       border-bottom-right-radius: 6px;
-      box-shadow: 0 4px 16px rgba(99, 102, 241, 0.3);
+      box-shadow: 0 4px 16px rgba(30, 58, 138, 0.3);
     }
 
     .message.bot {
@@ -248,8 +248,8 @@ export class ChatbotComponent extends LitElement {
     }
 
     .message-input:focus {
-      border-color: #6366f1;
-      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
       background: white;
     }
 
@@ -259,7 +259,7 @@ export class ChatbotComponent extends LitElement {
 
     .send-btn {
       padding: 16px 24px;
-      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+      background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
       color: white;
       border: none;
       border-radius: 16px;
@@ -267,7 +267,7 @@ export class ChatbotComponent extends LitElement {
       font-size: 15px;
       font-weight: 600;
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      box-shadow: 0 4px 16px rgba(99, 102, 241, 0.3);
+      box-shadow: 0 4px 16px rgba(30, 58, 138, 0.3);
       position: relative;
       overflow: hidden;
     }
@@ -286,7 +286,7 @@ export class ChatbotComponent extends LitElement {
 
     .send-btn:hover {
       transform: translateY(-1px);
-      box-shadow: 0 6px 24px rgba(99, 102, 241, 0.4);
+      box-shadow: 0 6px 24px rgba(30, 58, 138, 0.4);
     }
 
     .send-btn:hover::before {
@@ -301,7 +301,7 @@ export class ChatbotComponent extends LitElement {
       opacity: 0.5;
       cursor: not-allowed;
       transform: none;
-      box-shadow: 0 2px 8px rgba(99, 102, 241, 0.2);
+      box-shadow: 0 2px 8px rgba(30, 58, 138, 0.2);
     }
 
     .typing-indicator {
@@ -323,7 +323,7 @@ export class ChatbotComponent extends LitElement {
       width: 10px;
       height: 10px;
       border-radius: 50%;
-      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      background: linear-gradient(135deg, #1e3a8a, #3b82f6);
       animation: typing 1.4s infinite ease-in-out;
     }
 
@@ -378,7 +378,7 @@ export class ChatbotComponent extends LitElement {
 
       .message-input:focus {
         background: rgba(30, 41, 59, 1);
-        border-color: #6366f1;
+        border-color: #3b82f6;
       }
 
       .message-input::placeholder {
