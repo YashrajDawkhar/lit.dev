@@ -8,7 +8,8 @@
     "start": "vite",
     "build": "vite build",
     "dev": "vite",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "deploy": "gh-pages -d dist"
   },
   "keywords": [],
   "author": "",
